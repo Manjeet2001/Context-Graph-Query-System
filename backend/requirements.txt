@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sqlite3; sys_platform == "none" # builtin, just for documentation
+groq
+networkx
+pandas
+python-dotenv
