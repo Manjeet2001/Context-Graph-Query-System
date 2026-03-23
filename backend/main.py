@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
 import networkx as nx
+import os
 from llm_service import process_chat
 
 app = FastAPI()
@@ -16,6 +17,8 @@ app.add_middleware(
 )
 
 DB_PATH = "o2c.db"
+print("DB PATH:", DB_PATH)
+print("DB exists:", os.path.exists(DB_PATH))
 
 class ChatRequest(BaseModel):
     message: str
@@ -28,6 +31,8 @@ async def chat_endpoint(req: ChatRequest):
 
 @app.get("/api/graph")
 async def get_graph(node_id: str = None):
+    print("Inside /api/graph")
+    print("DB exists:", os.path.exists(DB_PATH))
     """
     Returns a graph neighborhood around a specified node_id, or a global summary graph.
     If no node_id is provided, might return an overview (e.g., 50 random nodes).
@@ -36,7 +41,8 @@ async def get_graph(node_id: str = None):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # We will build a simple generaliz    nodes = []
+    # We will build a simple generalization
+    nodes = []
     edges = []
     
     if node_id:
@@ -97,8 +103,9 @@ async def get_graph(node_id: str = None):
     seen_nodes = set() 
     unique_nodes = [] 
     for n in nodes: 
-        if n["id"] not in seen_nodes: seen_nodes.add(n["id"]) 
-        unique_nodes.append(n) 
+        if n["id"] not in seen_nodes: 
+            seen_nodes.add(n["id"]) 
+            unique_nodes.append(n) 
     return {"nodes": unique_nodes, "links": edges}
 
 if __name__ == "__main__":
