@@ -36,7 +36,7 @@ async def get_graph(node_id: str = None):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    nodes = []
+    # We will build a simple generaliz    nodes = []
     edges = []
     
     if node_id:
@@ -94,15 +94,14 @@ async def get_graph(node_id: str = None):
                     edges.append({"source": item_id, "target": item[1], "label": "Is Product"})
             
     conn.close()
-    seen_nodes = set()
-    unique_nodes = []
-    for n in nodes:
-        if n["id"] not in seen_nodes:
-            seen_nodes.add(n["id"])
-            unique_nodes.append(n)
-            
+    seen_nodes = set() 
+    unique_nodes = [] 
+    for n in nodes: 
+        if n["id"] not in seen_nodes: seen_nodes.add(n["id"]) 
+        unique_nodes.append(n) 
     return {"nodes": unique_nodes, "links": edges}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
