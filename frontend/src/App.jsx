@@ -3,18 +3,14 @@ import ForceGraph2D from 'react-force-graph-2d';
 import { Maximize2, Minimize2, Layers, MoreHorizontal, Layout } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://context-graph-query-system.up.railway.app';
+
 const fetchApi = async (path, options = {}) => {
-  const prodUrl = 'https://context-graph-query-system.up.railway.app';
-  const localUrl = 'http://localhost:8000';
-  
-  try {
-    const res = await fetch(`${prodUrl}${path}`, options);
-    // Let CORS or network errors fail over to local
-    return res;
-  } catch (err) {
-    console.warn(`Production API unreachable, falling back to localhost: ${err.message}`);
-    return fetch(`${localUrl}${path}`, options);
+  const res = await fetch(`${API_BASE_URL}${path}`, options);
+  if (!res.ok) {
+    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
   }
+  return res;
 };
 
 export default function App() {
