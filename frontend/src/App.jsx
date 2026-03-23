@@ -3,6 +3,20 @@ import ForceGraph2D from 'react-force-graph-2d';
 import { Maximize2, Minimize2, Layers, MoreHorizontal, Layout } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
+const fetchApi = async (path, options = {}) => {
+  const prodUrl = 'https://context-graph-query-system.up.railway.app';
+  const localUrl = 'http://localhost:8000';
+  
+  try {
+    const res = await fetch(`${prodUrl}${path}`, options);
+    // Let CORS or network errors fail over to local
+    return res;
+  } catch (err) {
+    console.warn(`Production API unreachable, falling back to localhost: ${err.message}`);
+    return fetch(`${localUrl}${path}`, options);
+  }
+};
+
 export default function App() {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [messages, setMessages] = useState([
@@ -35,8 +49,8 @@ export default function App() {
 
   const fetchGraphData = async (nodeId = null) => {
     try {
-      const url = nodeId ? `http://localhost:8000/api/graph?node_id=${nodeId}` : 'http://localhost:8000/api/graph';
-      const res = await fetch(url);
+      const path = nodeId ? `/api/graph?node_id=${nodeId}` : '/api/graph';
+      const res = await fetchApi(path);
       const data = await res.json();
       setGraphData(data);
     } catch (error) {
@@ -54,7 +68,7 @@ export default function App() {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8000/api/chat', {
+      const res = await fetchApi('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputMessage, history: newMessages })
